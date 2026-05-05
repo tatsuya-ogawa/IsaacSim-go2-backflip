@@ -1,0 +1,57 @@
+name: go2-backflip
+
+services:
+  backflip:
+    image: ${BACKFLIP_IMAGE:-go2-backflip-isaaclab:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ISAAC_LAB_IMAGE: ${ISAAC_LAB_IMAGE:-nvcr.io/nvidia/isaac-lab:2.3.2}
+        RSL_RL_VERSION: ${RSL_RL_VERSION:-5.0.1}
+    container_name: go2-backflip-isaaclab
+    network_mode: host
+    ipc: host
+    shm_size: 16gb
+    stdin_open: true
+    tty: true
+    working_dir: /workspace/backflip
+    entrypoint: bash
+    environment:
+      ACCEPT_EULA: ${ACCEPT_EULA:-}
+      PRIVACY_CONSENT: ${PRIVACY_CONSENT:-}
+      OMNI_KIT_ALLOW_ROOT: "1"
+      PYTHONPATH: /workspace/backflip/source/go2_backflip
+      NUM_ENVS: ${NUM_ENVS:-4096}
+      MAX_ITERATIONS: ${MAX_ITERATIONS:-}
+      RUN_NAME: ${RUN_NAME:-}
+      RESUME: ${RESUME:-}
+      LOAD_RUN: ${LOAD_RUN:-}
+      CHECKPOINT: ${CHECKPOINT:-}
+      CHECKPOINT_PATH: ${CHECKPOINT_PATH:-}
+      POLICY_PATH: ${POLICY_PATH:-}
+      VIDEO_LENGTH: ${VIDEO_LENGTH:-}
+      TASK_NAME: ${TASK_NAME:-}
+      PLAY_NUM_ENVS: ${PLAY_NUM_ENVS:-}
+      GO2_BACKFLIP_USD_PATH: ${GO2_BACKFLIP_USD_PATH:-}
+      GO2_BACKFLIP_RANDOMIZE_CONTROLS: ${GO2_BACKFLIP_RANDOMIZE_CONTROLS:-1}
+      GO2_BACKFLIP_RANDOMIZE_RIGIDS: ${GO2_BACKFLIP_RANDOMIZE_RIGIDS:-1}
+      VIDEO_RENDERING_MODE: ${VIDEO_RENDERING_MODE:-}
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - .:/workspace/backflip:rw
+      - ./cache/kit:/isaac-sim/kit/cache:rw
+      - ./cache/ov:/root/.cache/ov:rw
+      - ./cache/pip:/root/.cache/pip:rw
+      - ./cache/glcache:/root/.cache/nvidia/GLCache:rw
+      - ./cache/computecache:/root/.nv/ComputeCache:rw
+      - ./cache/omniverse-logs:/root/.nvidia-omniverse/logs:rw
+      - ./cache/ov-data:/root/.local/share/ov/data:rw
+      - ./cache/documents:/root/Documents:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
